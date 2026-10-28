@@ -164,7 +164,7 @@ pip install -e ".[dev]"
 pytest
 ```
 
-The tests compare the Monte Carlo results with exact numerical integration of the Beta posteriors. A GitHub Actions workflow is prepared in `ci/github-actions-ci.yml`.
+The tests compare the Monte Carlo results with exact numerical integration of the Beta posteriors. CI runs the tests on Linux and Windows (`.github/workflows/ci.yml`).
 
 ## Contributing
 
