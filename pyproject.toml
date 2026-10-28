@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bayesian-ab-testing"
+dynamic = ["version"]
+description = "A lightweight Python toolkit for Bayesian A/B testing: probability of winning, expected loss, lift, credible intervals (ETI and HDI) and posterior plots."
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.8"
+authors = [{ name = "Bernhard Brugger" }]
+keywords = ["ab-testing", "bayesian", "statistics", "beta-binomial", "experimentation"]
+dependencies = ["numpy>=1.20", "scipy>=1.7"]
+
+[project.optional-dependencies]
+plot = ["matplotlib>=3.4"]
+dev = ["pytest>=7", "matplotlib>=3.4"]
+
+[project.urls]
+Homepage = "https://github.com/bernhardbrugger/bayesian-ab-testing"
+Issues = "https://github.com/bernhardbrugger/bayesian-ab-testing/issues"
+
+[tool.setuptools]
+packages = ["bayesian_ab"]
+
+[tool.setuptools.dynamic]
+version = { attr = "bayesian_ab.__version__" }
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -15,3 +15,7 @@ env/
 .pytest_cache/
 .coverage
 htmlcov/
+
+.venv*/
+*.egg-info/
+.pytest_cache/
