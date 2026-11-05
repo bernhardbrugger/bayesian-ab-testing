@@ -129,6 +129,42 @@ class BayesianABTest:
         best = np.max(stacked, axis=1)
         return {name: float(np.mean(best - samples[name])) for name in names}
 
+    def decision(self, threshold: float = 0.001, min_trials: int = 100) -> Dict[str, object]:
+        """A stopping rule based on expected loss ("threshold of caring").
+
+        Stop when the best variant's expected loss falls below ``threshold`` (in absolute
+        conversion rate, e.g. 0.001 = 0.1 percentage points) and every variant has at least
+        ``min_trials`` observations; otherwise keep collecting data. Choose ``threshold`` from
+        what a wrong pick would cost you, not from the data.
+
+        Because the rule bounds the loss you accept, it stays meaningful when you check the
+        test every day, unlike a p-value. It does not make a tiny sample trustworthy: keep
+        ``min_trials`` high enough that the Beta-Binomial model and your prior make sense.
+
+        Returns ``{"action": "stop" | "continue", "leader", "expected_loss", "threshold",
+        "reason"}``; the leader is the variant with the smallest expected loss.
+        """
+        if threshold <= 0:
+            raise ValueError("threshold must be > 0")
+        min_trials = _check_count(min_trials, "min_trials")
+        if len(self.variants) < 2:
+            raise ValueError("Need at least 2 variants")
+        losses = self.expected_loss()
+        leader = min(losses, key=losses.get)
+        loss = losses[leader]
+        short = [n for n, v in self.variants.items() if v["trials"] < min_trials]
+        if short:
+            action = "continue"
+            reason = f"{', '.join(short)} has fewer than {min_trials} trials"
+        elif loss < threshold:
+            action = "stop"
+            reason = f"expected loss of {leader} is {loss:.5f}, below the threshold {threshold:g}"
+        else:
+            action = "continue"
+            reason = f"expected loss of {leader} is {loss:.5f}, not yet below the threshold {threshold:g}"
+        return {"action": action, "leader": leader, "expected_loss": loss,
+                "threshold": threshold, "reason": reason}
+
     def lift(self, variant: str, baseline: str, alpha: float = 0.05) -> Dict[str, object]:
         """Relative uplift of ``variant`` over ``baseline``: (rate_variant - rate_base) / rate_base.
 

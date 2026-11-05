@@ -1,5 +1,8 @@
 # Changelog
 
+## Unreleased
+- **New:** `decision(threshold, min_trials)`, a stopping rule on expected loss ("threshold of caring"): `stop` or `continue` with the leader, its expected loss and the reason. Tested against a simulation with peeking after every batch. 37 tests.
+
 ## 0.2.0
 - **New:** `lift()` (relative uplift with credible interval), `prob_better(a, b)`, `credible_interval(..., method="hdi")` (the README promised an HDI, the code only had equal-tailed intervals), `seed=` for reproducible results.
 - **New:** `posterior_plot()` returns the Axes and accepts `ax=` and `show=False`, so figures can be saved or embedded.

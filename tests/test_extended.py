@@ -164,3 +164,63 @@ def test_posterior_plot_returns_axes_without_showing():
     matplotlib.use("Agg")
     ax = make().posterior_plot(show=False)
     assert len(ax.lines) == 2 and ax.get_xlabel() == "Conversion Rate"
+
+
+# ── stopping rule (expected loss) ──────────────────────────────────────────
+
+def test_decision_waits_for_enough_data_then_stops_on_a_clear_winner():
+    t = BayesianABTest(seed=3, n_samples=50_000)
+    t.add_variant("A", successes=10, trials=50)
+    t.add_variant("B", successes=30, trials=50)
+    early = t.decision(threshold=0.01, min_trials=100)
+    assert early["action"] == "continue" and "fewer than 100 trials" in early["reason"]
+
+    t.add_observations("A", successes=100, trials=950)
+    t.add_observations("B", successes=300, trials=950)
+    done = t.decision(threshold=0.01, min_trials=100)
+    assert done["action"] == "stop" and done["leader"] == "B"
+    assert done["expected_loss"] < done["threshold"]
+
+
+def test_decision_keeps_going_while_the_loss_is_above_the_threshold():
+    t = BayesianABTest(seed=3, n_samples=50_000)
+    t.add_variant("A", successes=100, trials=1000)
+    t.add_variant("B", successes=104, trials=1000)  # nearly the same: still unsure
+    res = t.decision(threshold=0.0005, min_trials=100)
+    assert res["action"] == "continue" and "not yet below" in res["reason"]
+
+
+def test_decision_validates_its_arguments():
+    t = BayesianABTest()
+    t.add_variant("A", 1, 10)
+    with pytest.raises(ValueError, match="at least 2"):
+        t.decision()
+    t.add_variant("B", 2, 10)
+    with pytest.raises(ValueError, match="threshold"):
+        t.decision(threshold=0)
+    with pytest.raises(ValueError):
+        t.decision(min_trials=-1)
+
+
+def test_the_loss_you_accept_holds_even_when_you_peek_after_every_batch():
+    # Theory: if the true rates are drawn from the prior, the average regret of the variant you
+    # pick when you stop is below the threshold, whatever the stopping rule. Simulated here with
+    # 150 tests that look at the data after every batch of 100 visitors (they stop after about
+    # five looks on average, so the peeking is real) and a prior that matches the simulation.
+    rng = np.random.default_rng(2026)
+    threshold, regrets, looks = 0.002, [], []
+    for k in range(150):
+        true = rng.beta(20, 180, 2)
+        t = BayesianABTest(prior_alpha=20, prior_beta=180, seed=k, n_samples=4_000)
+        t.add_variant("A", 0, 0)
+        t.add_variant("B", 0, 0)
+        for n_looks in range(1, 81):
+            for name, p in zip("AB", true):
+                t.add_observations(name, int(rng.binomial(100, p)), 100)
+            res = t.decision(threshold=threshold, min_trials=100)
+            if res["action"] == "stop":
+                break
+        looks.append(n_looks)
+        regrets.append(true.max() - true[0 if res["leader"] == "A" else 1])
+    assert 2 < np.mean(looks) < 15 and max(looks) < 80  # it did peek, and it did stop
+    assert np.mean(regrets) < threshold + 0.001  # Monte Carlo noise allowance

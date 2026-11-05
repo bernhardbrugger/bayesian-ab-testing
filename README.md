@@ -51,6 +51,7 @@ test.posterior_plot()
 - 📊 **Posterior visualization** — Plot Beta distributions for each variant
 - 📏 **Credible intervals** — equal-tailed (default) or highest density (`method="hdi"`)
 - 📉 **Expected loss** — what you give up, on average, if you pick the wrong variant
+- 🛑 **Stopping rule** — `decision()` says stop or continue from a threshold of caring
 - 🔄 **Incremental updates** — Add observations over time
 - 📋 **Summary reports** — Human-readable test summaries
 - 🧮 **Lift estimation** — relative uplift over a baseline with a credible interval
@@ -106,6 +107,18 @@ test.expected_loss()                                # average rate you lose by c
 test.lift("Homepage B", "Homepage A")               # {"mean", "median", "ci", "prob_positive"}
 test.credible_interval("Homepage B", method="hdi")  # shortest 95 % interval
 ```
+
+### When to stop
+
+Decide in advance how much a wrong pick may cost you (the "threshold of caring", in absolute conversion rate) and let the test tell you when it is below that:
+
+```python
+test.decision(threshold=0.001, min_trials=500)
+# {'action': 'stop', 'leader': 'Homepage B', 'expected_loss': 0.00029, 'threshold': 0.001,
+#  'reason': 'expected loss of Homepage B is 0.00029, below the threshold 0.001'}  (seed 42)
+```
+
+The rule bounds the loss you accept even when you look every day: in a simulation with a prior that matches the data, the average regret at the stopping time stays below the threshold (see `test_the_loss_you_accept_holds_even_when_you_peek_after_every_batch`). That is a statement about loss, not about error rates: with a wrong prior, a tiny `min_trials` or a threshold that is too generous you can still stop on a lucky streak. Pick the threshold from costs, not from the data.
 
 ### Incremental Updates
 
