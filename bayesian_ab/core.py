@@ -293,7 +293,7 @@ class BayesianABTest:
             lines.append("")
 
         winner = max(probs, key=probs.get)
-        lines.append(f"  → Winner: {winner} (P={probs[winner]:.1%})")
+        lines.append(f"  -> Winner: {winner} (P={probs[winner]:.1%})")
         lines.append("=" * 60)
 
         text = "\n".join(lines)

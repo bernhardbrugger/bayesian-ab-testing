@@ -159,6 +159,18 @@ def test_summary_handles_zero_trials_and_reports_lift(capsys):
     assert capsys.readouterr().out.strip() == text.strip()
 
 
+def test_summary_prints_on_a_cp1252_console(monkeypatch):
+    # Windows uses cp1252 for redirected output (python script.py > out.txt); a non-ASCII
+    # character in the summary used to raise UnicodeEncodeError there.
+    import io
+    import sys
+    buf = io.BytesIO()
+    monkeypatch.setattr(sys, "stdout", io.TextIOWrapper(buf, encoding="cp1252", errors="strict"))
+    text = make().summary()
+    sys.stdout.flush()
+    assert "Winner: B" in text and "Winner: B" in buf.getvalue().decode("cp1252")
+
+
 def test_posterior_plot_returns_axes_without_showing():
     matplotlib = pytest.importorskip("matplotlib")
     matplotlib.use("Agg")

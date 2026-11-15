@@ -2,6 +2,7 @@
 
 ## Unreleased
 - **New:** `decision(threshold, min_trials)`, a stopping rule on expected loss ("threshold of caring"): `stop` or `continue` with the leader, its expected loss and the reason. Tested against a simulation with peeking after every batch. 37 tests.
+- **Fix:** `summary()` no longer raises `UnicodeEncodeError` on Windows when the output is redirected (cp1252); the winner line uses `->` instead of a Unicode arrow. 38 tests.
 
 ## 0.2.0
 - **New:** `lift()` (relative uplift with credible interval), `prob_better(a, b)`, `credible_interval(..., method="hdi")` (the README promised an HDI, the code only had equal-tailed intervals), `seed=` for reproducible results.
