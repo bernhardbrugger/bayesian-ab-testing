@@ -28,7 +28,7 @@ test.add_variant("Variant B", successes=145, trials=1000)
 
 # Who's winning?
 print(test.probability_of_winning())
-# {'Control': 0.0491, 'Variant B': 0.9509}
+# {'Control': 0.04914, 'Variant B': 0.95086}
 
 # Credible intervals
 print(test.credible_interval("Variant B"))
@@ -39,7 +39,7 @@ test.summary()
 
 # Relative uplift of B over Control, with uncertainty
 print(test.lift("Variant B", "Control"))
-# {'mean': 0.215, 'median': 0.207, 'ci': (-0.036, 0.513), 'prob_positive': 0.95}
+# {'mean': 0.215, 'median': 0.207, 'ci': (-0.035, 0.514), 'prob_positive': 0.95}  (rounded)
 
 # Visualize posteriors
 test.posterior_plot()
