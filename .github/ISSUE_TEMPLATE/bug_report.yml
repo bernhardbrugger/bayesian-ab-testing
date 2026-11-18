@@ -1,0 +1,44 @@
+name: Bug report
+description: A wrong number, a crash, or an error message
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. P(best), the intervals and the lift are Monte Carlo estimates: two runs without a seed
+        differ by roughly 1/√`n_samples`. That alone is not a bug; a difference larger than that is.
+  - type: textarea
+    id: script
+    attributes:
+      label: Script that shows the problem
+      description: Successes and trials per variant, the `seed=` and `n_samples=` you used, and the call.
+      placeholder: |
+        from bayesian_ab import BayesianABTest
+        test = BayesianABTest(seed=42, n_samples=100_000)
+        test.add_variant("A", successes=120, trials=1000)
+        test.add_variant("B", successes=145, trials=1000)
+        print(test.probability_of_winning())
+      render: python
+    validations:
+      required: true
+  - type: textarea
+    id: expected-actual
+    attributes:
+      label: Output you got and output you expected
+      description: Where does the expected number come from (a closed-form result, another tool)? For a crash, paste the full traceback.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Package version
+      description: Output of `python -c "import bayesian_ab; print(bayesian_ab.__version__)"`
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Python version and OS
+      placeholder: Python 3.12, Ubuntu 24.04
+    validations:
+      required: true
