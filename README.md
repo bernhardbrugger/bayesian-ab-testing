@@ -181,12 +181,7 @@ The tests compare the Monte Carlo results with exact numerical integration of th
 
 ## Contributing
 
-Contributions welcome! Please open an issue or submit a PR.
-
-1. Fork the repo
-2. Create a feature branch
-3. Add tests for new functionality
-4. Submit a pull request
+Contributions welcome. [CONTRIBUTING.md](CONTRIBUTING.md) has the setup and test commands, what a useful bug report contains and what a pull request needs.
 
 ## License
 
