@@ -178,6 +178,18 @@ def test_posterior_plot_returns_axes_without_showing():
     assert len(ax.lines) == 2 and ax.get_xlabel() == "Conversion Rate"
 
 
+def test_posterior_plot_without_matplotlib_names_the_right_install(monkeypatch):
+    import sys
+    # None in sys.modules makes the import fail as if matplotlib were not installed.
+    monkeypatch.setitem(sys.modules, "matplotlib", None)
+    monkeypatch.setitem(sys.modules, "matplotlib.pyplot", None)
+    with pytest.raises(ImportError) as info:
+        make().posterior_plot(show=False)
+    # The PyPI name "bayesian-ab-testing" belongs to another project: never point there.
+    assert "pip install matplotlib" in str(info.value)
+    assert "bayesian-ab-testing" not in str(info.value)
+
+
 # ── stopping rule (expected loss) ──────────────────────────────────────────
 
 def test_decision_waits_for_enough_data_then_stops_on_a_clear_winner():

@@ -241,8 +241,9 @@ class BayesianABTest:
         try:
             import matplotlib.pyplot as plt
         except ImportError as e:
-            raise ImportError("posterior_plot needs matplotlib: pip install matplotlib "
-                              "(or pip install bayesian-ab-testing[plot])") from e
+            # Not "pip install bayesian-ab-testing[plot]": that name on PyPI is a different
+            # project, so the hint would install someone else's package.
+            raise ImportError("posterior_plot needs matplotlib: pip install matplotlib") from e
 
         if ax is None:
             _, ax = plt.subplots(figsize=figsize)
